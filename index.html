@@ -3,90 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random Image Viewer</title>
+    <title>Elegant Random Image Gallery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
             text-align: center;
-            padding: 20px;
-            background-color: #121212;
+            padding: 0;
+            margin: 0;
+            background: linear-gradient(135deg, #1c1c1c, #2c2c2c);
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 30px;
             color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        #imageContainer {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+        #imageContainer:hover {
+            transform: translateY(-5px);
         }
         img {
-            max-width: 90%;
-            max-height: 80vh;
+            max-width: 100%;
+            max-height: 60vh;
             height: auto;
-            margin-top: 20px;
-            border: 1px solid #333;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            border: 3px solid #444;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
             object-fit: contain;
-            display: none; /* Hide the image initially */
+            display: none;
+            border-radius: 15px;
+            transition: all 0.5s ease;
+        }
+        img:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 40px rgba(0, 123, 255, 0.4);
         }
         button {
-            padding: 10px 20px;
-            font-size: 16px;
-            margin-top: 20px;
+            padding: 15px 40px;
+            font-size: 18px;
+            margin-top: 40px;
             cursor: pointer;
-            background-color: #007bff;
-            color: #fff;
+            background: linear-gradient(45deg, #007bff, #00c6ff);
+            color: #ffffff;
             border: none;
-            border-radius: 4px;
-            transition: background-color 0.3s;
+            border-radius: 50px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+            font-weight: 600;
+            letter-spacing: 1px;
         }
         button:hover {
-            background-color: #0056b3;
+            background: linear-gradient(45deg, #0056b3, #0099cc);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 123, 255, 0.6);
+        }
+        button:active {
+            transform: translateY(0) scale(0.98);
         }
         .preloader {
-            margin-top: 20px;
-            border: 5px solid #f3f3f3;
+            margin: 40px auto;
+            border: 5px solid #1c1c1c;
             border-radius: 50%;
             border-top: 5px solid #007bff;
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             animation: spin 1s linear infinite;
-            display: none; /* Hide the preloader initially */
+            display: none;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        #sourceFileName {
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: 300;
+            color: #cccccc;
+            display: none;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
     </style>
 </head>
 <body>
-    <h1>Random Image Viewer</h1>
-    <div id="imageContainer">
-        <div class="preloader" id="preloader"></div>
-        <img id="randomImage" src="" alt="Random Image">
+    <div class="container">
+        <h1>Elegant Random Image Gallery</h1>
+        <div id="imageContainer">
+            <div class="preloader" id="preloader"></div>
+            <img id="randomImage" src="" alt="Random Image" class="fade-in">
+            <div id="sourceFileName" class="fade-in"></div>
+        </div>
+        <button onclick="fetchRandomImage()">Discover New Image</button>
     </div>
-    <button onclick="fetchRandomImage()">Show Random Image</button>
 
     <script>
         function fetchRandomImage() {
             const preloader = document.getElementById('preloader');
             const image = document.getElementById('randomImage');
+            const sourceFileNameDisplay = document.getElementById('sourceFileName');
 
-            // Show preloader and hide the image
             preloader.style.display = 'block';
             image.style.display = 'none';
+            sourceFileNameDisplay.style.display = 'none';
 
-            fetch('https://raw.githubusercontent.com/ravanabackup/imgbb/main/source.txt')
+            const sources = [
+                'https://raw.githubusercontent.com/ravanabackup/imgbb/main/source/picz.txt',
+                'https://raw.githubusercontent.com/ravanabackup/imgbb/main/source/picz1.txt',
+                'https://raw.githubusercontent.com/ravanabackup/imgbb/main/source/picz2.txt',
+                'https://raw.githubusercontent.com/ravanabackup/imgbb/main/source/picz3.txt'
+            ];
+
+            const randomSource = sources[Math.floor(Math.random() * sources.length)];
+
+            fetch(randomSource)
                 .then(response => response.text())
                 .then(data => {
                     const imageLinks = data.trim().split('\n');
-                    const randomIndex = Math.floor(Math.random() * imageLinks.length);
-                    const randomImageUrl = imageLinks[randomIndex].trim();
+                    const randomImageUrl = imageLinks[Math.floor(Math.random() * imageLinks.length)].trim();
                     image.src = randomImageUrl;
 
-                    // Hide preloader and show the image after it has loaded
+                    const sourceFileName = randomSource.split('/').pop();
+                    sourceFileNameDisplay.textContent = `Source: ${sourceFileName}`;
+
                     image.onload = function() {
                         preloader.style.display = 'none';
                         image.style.display = 'block';
+                        sourceFileNameDisplay.style.display = 'block';
+                        image.classList.add('fade-in');
+                        sourceFileNameDisplay.classList.add('fade-in');
                     }
                 })
                 .catch(error => {
                     console.error('Error fetching image links:', error);
                     alert('Failed to fetch random image. Please try again later.');
-                    preloader.style.display = 'none'; // Hide preloader if there's an error
+                    preloader.style.display = 'none';
                 });
         }
     </script>
